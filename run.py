@@ -1,3 +1,5 @@
+import GA
+
 l = 2       # 上级供应点数量
 m = 3       # 配送中心数量
 n = 12      # 需求点数量
@@ -30,7 +32,7 @@ delta2 = 10     # 单位检验成本（元/吨）
 v = 30          # 车辆行驶速度v（公里/小时）
 
 
-def get_fixed_cost(chromosome: list):
+def get_fixed_cost(chromosome: list) -> float:
     """
     获取固定成本
     :param chromosome: 染色体
@@ -43,7 +45,7 @@ def get_fixed_cost(chromosome: list):
     return s
 
 
-def get_transport_cost(chromosome: list, q_ij: list, q_jk: list):
+def get_transport_cost(chromosome: list, q_ij: list, q_jk: list) -> float:
     """
     获取运输成本
     :param chromosome: 染色体
@@ -63,7 +65,7 @@ def get_transport_cost(chromosome: list, q_ij: list, q_jk: list):
     return s
 
 
-def get_refrigeration_cost(chromosome: list, q_ij: list, q_jk: list):
+def get_refrigeration_cost(chromosome: list, q_ij: list, q_jk: list) -> float:
     """获取制冷成本"""
     s = 0
     for i in range(l):
@@ -77,7 +79,7 @@ def get_refrigeration_cost(chromosome: list, q_ij: list, q_jk: list):
     return s * alpha
 
 
-def get_storage_cost(chromosome: list, q_ij: list):
+def get_storage_cost(chromosome: list, q_ij: list) -> float:
     """获取仓储成本"""
     # todo: 待修改
     s = 0
@@ -87,7 +89,7 @@ def get_storage_cost(chromosome: list, q_ij: list):
     return s * h
 
 
-def get_penalty_cost(chromosome: list, q_jk: list):
+def get_penalty_cost(chromosome: list, q_jk: list) -> float:
     """获取惩罚成本"""
     s = 0
     for j in range(m):
@@ -100,5 +102,48 @@ def get_penalty_cost(chromosome: list, q_jk: list):
     return s
 
 
+def get_damage_cost(chromosome: list) -> float:
+    """获取货损成本"""
+    s = 233
+    return s
+
+
+def get_pretreatment_cost(chromosome: list, q_ij: list) -> float:
+    """获取预处理成本"""
+    s = 0
+    for i in range(l):
+        for j in range(m):
+            s += q_ij[i][j] * chromosome[j]
+    return s * beta
+
+
+def get_inspection_cost(chromosome: list, q_ij: list) -> float:
+    """获取安全检验成本"""
+    s = 0
+    for i in range(l):
+        for j in range(m):
+            s += (delta1 + delta2) * q_ij[i][j] * chromosome[j]
+    return s
+
+
+def get_cost(chromosome: list) -> float:
+    f = 100
+    for j in range(m):
+        f += chromosome[j] * j
+    return f
+
+
 if __name__ == '__main__':
-    print("hello world")
+    population = GA.init(10, 100)
+    for i in range(GA.iterations):
+        fitness = GA.cal_fitness(population, get_cost)
+        population = GA.select(population, fitness, get_cost)
+        population = GA.crossover(population)
+        population = GA.mutation(population)
+
+        p = GA.cal_pop_fitness(population, get_cost, 5)
+        for value in p:
+            print(value)
+        print()
+
+
