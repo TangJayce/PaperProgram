@@ -9,6 +9,7 @@ populations = 100   # 种群规模
 pc = 0.7            # 交叉概率
 pm = 0.05           # 变异概率
 iterations = 200    # 迭代次数
+pr = 0.1            # 保留前10%最优秀的个体
 
 
 def check(chromosome: list) -> bool:
@@ -19,15 +20,14 @@ def check(chromosome: list) -> bool:
     return False
 
 
-def init(genes: int, chromosomes: int) -> list:
+def init(genes: int) -> list:
     """初始化种群
     :param genes: 这个种群的基因数量
-    :param chromosomes: 这个种群有多少个个体
     :return: 整个种群的染色体
     """
     population = []
     i = 0
-    while i < chromosomes:
+    while i < populations:
         chromosome = []
         for j in range(genes):
             chromosome.append(random.randint(0, 1))
@@ -39,28 +39,30 @@ def init(genes: int, chromosomes: int) -> list:
     return population
 
 
-def cal_pop_fitness(population: list, func, size: int) -> list:
-    fitness = cal_fitness(population, func)
+def cal_pop_fitness(population: list, fitness: list, size: int) -> list:
     s = []
     for index, value in enumerate(fitness):
         s.append([index, value])
     s.sort(key=(lambda x: x[1]), reverse=True)
-    pop_fitness = []
+    pop_chromosome = []
     for i in range(size):
         index = s[i][0]
-        pop_fitness.append(population[index])
-    return pop_fitness
+        if index < len(population):
+            pop_chromosome.append(population[index])
+        else:
+            pop_chromosome.append([])
+    return pop_chromosome
 
 
 def cal_fitness(population: list, func) -> list:
     """计算适应度函数"""
     fitness = []
     for chromosome in population:
-        fitness.append(1 / func(chromosome))
+        fitness.append(1 / (func(chromosome) - 10_0000))
     return fitness
 
 
-def select(population: list, fitness: list, func) -> list:
+def select(population: list, fitness: list) -> list:
     """遗传选择"""
     # 计算累积概率
     p = []
@@ -70,8 +72,8 @@ def select(population: list, fitness: list, func) -> list:
         s += i
         p.append(s / total)
     # 轮盘赌法进行选择
-    size = 5
-    new_population = cal_pop_fitness(population, func, size)
+    size = int(len(fitness) * pr)
+    new_population = cal_pop_fitness(population, fitness, size)
     for i in range(populations - size):
         r = random.random()
         for index, value in enumerate(p):
@@ -92,13 +94,13 @@ def crossover(population: list) -> list:
         else:
             new_population.append(value)
     m = len(chromosomes)
-    pos = random.randint(1, len(population[0]) - 1)
-    for i in range(m):
-        for j in range(i + 1, m):
-            dad = list(chromosomes[i])
-            mom = list(chromosomes[j])
-            new_chromosome = dad[:pos] + mom[pos:]
-            new_population.append(new_chromosome)
+    for i in range(0, m - 1, 2):
+        pos = random.randint(1, len(population[0]) - 1)
+        j = i + 1
+        dad = list(chromosomes[i])
+        mom = list(chromosomes[j])
+        new_population.append(dad[:pos] + mom[pos:])
+        new_population.append(mom[:pos] + dad[pos:])
     return new_population
 
 
