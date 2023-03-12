@@ -47,7 +47,7 @@ delta2 = 10     # 单位检验成本（元/吨）
 v = 30          # 车辆行驶速度v（公里/小时）
 
 
-def get_fixed_cost(chromosome: list[int]) -> float:
+def get_fixed_cost(chromosome: list) -> float:
     """
     获取固定成本
     :param chromosome: 染色体
@@ -60,7 +60,7 @@ def get_fixed_cost(chromosome: list[int]) -> float:
     return s
 
 
-def get_transport_cost(chromosome: list[int], q_ij: list[list[int]], q_jk: list[list[int]]) -> float:
+def get_transport_cost(chromosome: list, q_ij: list, q_jk: list) -> float:
     """
     获取运输成本
     :param chromosome: 染色体
@@ -80,7 +80,7 @@ def get_transport_cost(chromosome: list[int], q_ij: list[list[int]], q_jk: list[
     return s
 
 
-def get_refrigeration_cost(chromosome: list[int], q_ij: list[list[int]], q_jk: list[list[int]]) -> float:
+def get_refrigeration_cost(chromosome: list, q_ij: list, q_jk: list) -> float:
     """获取制冷成本"""
     s = 0
     for i in range(l):
@@ -94,7 +94,7 @@ def get_refrigeration_cost(chromosome: list[int], q_ij: list[list[int]], q_jk: l
     return s * alpha
 
 
-def get_storage_cost(chromosome: list[int], q_ij: list[list[int]]) -> float:
+def get_storage_cost(chromosome: list, q_ij: list) -> float:
     """获取仓储成本"""
     s = 0
     for i in range(l):
@@ -103,7 +103,7 @@ def get_storage_cost(chromosome: list[int], q_ij: list[list[int]]) -> float:
     return s * h
 
 
-def get_penalty_cost(chromosome: list[int], q_jk: list[list[int]]) -> float:
+def get_penalty_cost(chromosome: list, q_jk: list) -> float:
     """获取惩罚成本"""
     s = 0
     for j in range(m):
@@ -129,7 +129,7 @@ def get_damage_cost(Dk: list) -> float:
     return s * P
 
 
-def get_pretreatment_cost(chromosome: list[int], q_ij: list[list[int]]) -> float:
+def get_pretreatment_cost(chromosome: list, q_ij: list) -> float:
     """获取预处理成本"""
     s = 0
     for i in range(l):
@@ -138,7 +138,7 @@ def get_pretreatment_cost(chromosome: list[int], q_ij: list[list[int]]) -> float
     return s * beta
 
 
-def get_inspection_cost(chromosome: list[int], q_ij: list) -> float:
+def get_inspection_cost(chromosome: list, q_ij: list) -> float:
     """获取安全检验成本"""
     s = 0
     for i in range(l):
@@ -147,7 +147,7 @@ def get_inspection_cost(chromosome: list[int], q_ij: list) -> float:
     return s
 
 
-def get_parent_j(chromosome: list[int]) -> list[int]:
+def get_parent_j(chromosome: list) -> list:
     """获取配送中心是由哪个供应点供应的"""
     parent_j = [-1 for _ in range(m)]
     for j in range(m):
@@ -162,7 +162,7 @@ def get_parent_j(chromosome: list[int]) -> list[int]:
     return parent_j
 
 
-def get_parent_k(chromosome: list[int]) -> list[int]:
+def get_parent_k(chromosome: list) -> list:
     """获取需求点是否哪个配送中心配送的"""
     parent_k = [-1 for _ in range(n)]
     for k in range(n):
@@ -177,7 +177,7 @@ def get_parent_k(chromosome: list[int]) -> list[int]:
     return parent_k
 
 
-def get_q_jk(parent_k) -> tuple[list[list[int]], list[int]]:
+def get_q_jk(parent_k: list):
     """
     获取每一个配送中心到需求点的供应量
     :param parent_k: 需求点是否哪个配送中心配送的
@@ -194,7 +194,7 @@ def get_q_jk(parent_k) -> tuple[list[list[int]], list[int]]:
     return q_jk, Tj
 
 
-def get_q_ij(parent_j, Tj: list) -> list:
+def get_q_ij(parent_j: list, Tj: list) -> list:
     """
     获取每一个供应点到配送中心的供应量
     :param parent_j: 配送中心是由哪个供应点供应的
@@ -209,7 +209,7 @@ def get_q_ij(parent_j, Tj: list) -> list:
     return q_ij
 
 
-def get_cost(chromosome: list[int]) -> float:
+def get_cost(chromosome: list) -> float:
     s = 0
     parent_j = get_parent_j(chromosome)
     parent_k = get_parent_k(chromosome)
@@ -233,7 +233,7 @@ def get_cost(chromosome: list[int]) -> float:
     return s
 
 
-def show_cost_detail(chromosome: list[int]):
+def show_cost_detail(chromosome: list):
     parent_j = get_parent_j(chromosome)
     parent_k = get_parent_k(chromosome)
     [q_jk, Tj] = get_q_jk(parent_k)
